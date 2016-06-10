@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>CENSUS DATA</title>
+<style>
+h1 {
+    border-bottom: 3px solid #cc9900;
+    color: #996600;
+    font-size: 30px;
+}
+
+div
+{
+text-align:center
+}
+
+div#task1container
+{
+display : none;
+}
+div#task2container
+{
+display : none;
+}
+div#task3container
+{
+display : none;
+}
+p
+{
+text-align=center
+}
+
+table, th , td  {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid grey;
+    border-collapse: collapse;
+   padding: 5px;
+}
+table tr:nth-child(odd) {
+    background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+    background-color: #ffffff;
+}
+</style>
+<script type="text/javascript" >
+
+
+function showform()
+{
+	if(document.getElementById("task1").checked){  
+        document.getElementById("task1container").style.display = 'block';
+		document.getElementById("task2container").style.display = 'none';
+		document.getElementById("task3container").style.display = 'none';
+		document.getElementById("responseheader").style.display = 'none';
+		document.getElementById("responsetext").style.display = 'none';
+     }
+     else if(document.getElementById("task2").checked){  
+       document.getElementById("task1container").style.display = 'none';
+		document.getElementById("task2container").style.display = 'block';
+		document.getElementById("task3container").style.display = 'none';
+		document.getElementById("responseheader").style.display = 'none';
+		document.getElementById("responsetext").style.display = 'none';
+
+     } 
+	 else if(document.getElementById("task3").checked){  
+        document.getElementById("task1container").style.display = 'none';
+		document.getElementById("task2container").style.display = 'none';
+		document.getElementById("task3container").style.display = 'block';
+		document.getElementById("responseheader").style.display = 'none';
+		document.getElementById("responsetext").style.display = 'none';
+
+     }
+}
+function gettask1() {
+		var code = document.task1form.countrycode.value;
+		var year = document.task1form.year.value;
+		var sex = document.task1form.sex.value;
+		if(code=="" || year =="" || sex=="")
+		{
+			alert('Please enter all required fields');
+			return false;
+		}
+	    var xhttp1 = new XMLHttpRequest();
+		var uri = "http://api.census.gov/data/timeseries/idb/1year?get=AREA_KM2,NAME,AGE,POP&FIPS="+code+"&time="+year+"&SEX="+sex;
+		xhttp1.onreadystatechange = function() {
+	    if (xhttp1.readyState == 4 && xhttp1.status == 200) {
+	      displayresulttask1(xhttp1.responseText);
+	      document.getElementById("task1container").style.display = 'none';
+		  document.getElementById("task2container").style.display = 'none';
+		  document.getElementById("task3container").style.display = 'none';
+		  document.task1form.countrycode.value = "";
+		  document.task1form.year.value = "";
+	      document.task1form.sex.value="";
+		};
+	  };
+	  xhttp1.open("GET", uri, true);
+	  xhttp1.send();
+	  
+	}
+function gettask2(){
+		var code = document.task2form.countrycode.value;
+		//alert(code+"hi");
+		var year1= document.task2form.year1.value;
+		var year2= document.task2form.year2.value;
+		if(code=="" || year1=="" || year2=="")
+		{
+			alert('please enter all required fields');
+			return false;
+		}
+		if(year1>year2 || year1==year2)
+		{
+			alert('year1 should be less than year2');
+			return false;
+		}
+		var xhttp1 = new XMLHttpRequest();
+		var xhttp2 = new XMLHttpRequest();
+		var uri1 = "http://api.census.gov/data/timeseries/idb/1year?get=AREA_KM2,NAME,AGE,POP&FIPS="+code+"&time="+year1+"&SEX=0";
+		var uri2 = "http://api.census.gov/data/timeseries/idb/1year?get=AREA_KM2,NAME,AGE,POP&FIPS="+code+"&time="+year2+"&SEX=0";
+		//alert(uri);
+		xhttp2.onreadystatechange = function() {
+	    if (xhttp1.readyState == 4 && xhttp1.status == 200 && xhttp2.readyState == 4 && xhttp2.status == 200){
+	      //document.getElementById("task1").innerHTML = xhttp.responseText;
+	     displayresulttask2(xhttp1.responseText,xhttp2.responseText);
+	      document.getElementById("task1container").style.display = 'none';
+		  document.getElementById("task2container").style.display = 'none';
+		  document.getElementById("task3container").style.display = 'none';
+		  document.task2form.countrycode.value = "";
+		  document.task2form.year1.value = "";
+	      document.task2form.year2.value="";
+		
+		    //$("div#formcontainer").hide();
+	    };
+	  };
+	  xhttp1.open("GET", uri1, true);
+	  xhttp1.send();
+	  xhttp2.open("GET", uri2, true);
+	  xhttp2.send();
+}
+function gettask3(){
+
+		var code = document.task3form.countrycode.value;
+		var year = document.task3form.year.value;
+		
+		if(code=="" || year=="")
+		{
+			alert('please enter all required fields');
+			return false;
+		}
+		
+		var xhttp1 = new XMLHttpRequest();
+		var xhttp2 = new XMLHttpRequest();
+		var uri1 = "http://api.census.gov/data/timeseries/idb/1year?get=AREA_KM2,NAME,AGE,POP&FIPS="+code+"&time="+year+"&SEX=1";
+		var uri2 = "http://api.census.gov/data/timeseries/idb/1year?get=AREA_KM2,NAME,AGE,POP&FIPS="+code+"&time="+year+"&SEX=2";
+		xhttp2.onreadystatechange = function() {
+			if (xhttp1.readyState == 4 && xhttp1.status == 200 && xhttp2.readyState == 4 && xhttp2.status == 200) {
+			//document.getElementById("task1").innerHTML = xhttp.responseText;
+				displayresulttask3(xhttp1.responseText,xhttp2.responseText);
+				document.getElementById("task1container").style.display = 'none';
+				document.getElementById("task2container").style.display = 'none';
+				document.getElementById("task3container").style.display = 'none';
+				document.task3form.countrycode.value="";
+				document.task3form.year.value="";
+		
+		    //$("div#formcontainer").hide();
+			};
+		};
+		xhttp1.open("GET", uri1, true);
+		xhttp1.send();
+		xhttp2.open("GET", uri2, true);
+		xhttp2.send();
+}	
+function displayresulttask1(response) {
+    var arr = JSON.parse(response);
+    var i;
+    var out = "<table>";
+	var sex;
+	if(arr[1][6]==0)
+	sex = 'MALE AND FEMALE';
+	if(arr[1][6]==1)
+	sex = 'MALE';
+	if(arr[1][6]==2)
+	sex = 'FEMALE';
+	
+	
+    out+= "<tr><th>AREA</th><th>COUNTRY</th><th>AGE GROUP</th><th>POPULATION</th><th>COUNTRY_CODE</th><th>YEAR</th><th>SEX</th></tr>"
+    for(i = 1; i < arr.length; i++) {
+       	 out += "<tr><td>"
+        	for(j=0;j<7;j++)
+    		{
+    		if(j<6)
+				out += arr[i][j] + "</td><td>";
+			else
+				//out+=arr[i][j]+"</td>"
+				out+=sex+"</td>"
+			}
+    out+="</td></tr>";
+    }
+    out += "</table>";
+	if(arr[1][6]==0)
+	sex='Total';
+	if(arr[1][6]==1)
+	sex='MALE';
+	if(arr[1][6]==2)
+	sex='FEMALE';
+	document.getElementById("responseheader").innerHTML = sex+"  Population data for  "+arr[1][1]+"  for year  "+arr[1][5];
+	document.getElementById("responsetext").innerHTML = out;
+	document.getElementById("responseheader").style.display = 'block';
+	document.getElementById("responsetext").style.display = 'block';
+
+}
+function displayresulttask2(response1,response2) {
+	var arr1 = JSON.parse(response1);
+	var arr2 = JSON.parse(response2);
+    var i;
+    var out = "<table>";
+	var percentage;
+    out+= "<tr><th>AREA</th><th>COUNTRY</th><th>AGE GROUP</th><th>PERCENTAGE CHANGE IN POPULATION</th><th>COUNTRY_CODE</th><th>YEARS</th></tr>"
+    for(i = 1; i < arr1.length; i++) {
+       	 out += "<tr><td>"
+        	for(j=0;j<6;j++)
+    		{
+			if(j==3)
+				{
+					percentage = Math.round(((arr2[i][3]-arr1[i][j])/arr1[i][j])*100);
+					out += percentage+"%"+"</td><td>";
+				}
+    		else if(j<5)
+				out += arr1[i][j] + "</td><td>";
+			else
+				out+= arr1[i][j]+"-"+arr2[i][j]+"</td>";
+			}
+    out+="</td></tr>";
+    }
+    out += "</table>";
+	document.getElementById("responseheader").innerHTML = "Percentage change in population for "+arr1[1][1]+" between years "+arr1[1][5]+"-"+arr2[1][5];
+	document.getElementById("responsetext").innerHTML = out;
+	document.getElementById("responseheader").style.display = 'block';
+	document.getElementById("responsetext").style.display = 'block';
+
+
+}
+function displayresulttask3(response1,response2){
+
+	var arr1 = JSON.parse(response1);
+	var arr2 = JSON.parse(response2);
+    var i;
+    var out = "<table>";
+	var sex;
+    out+= "<tr><th>AREA</th><th>COUNTRY</th><th>AGE GROUP</th><th>MALE POPULATION</th><th>FEMALE POPULATION</th><th>COUNTRY_CODE</th><th>YEAR</th></tr>"
+    for(i = 1; i < arr1.length; i++) {
+       	 out += "<tr><td>"
+        	for(j=0;j<6;j++)
+    		{
+			if(j==3)
+			out += arr1[i][j] + "</td><td>"+arr2[i][3]+ "</td><td>";
+    		else if(j<5)
+				out += arr1[i][j] + "</td><td>";
+			else
+				out+= arr1[i][j]+"</td>";
+			}
+    out+="</td></tr>";
+    }
+    out += "</table>";
+	document.getElementById("responseheader").innerHTML = "Male and Female Population data for  "+arr1[1][1]+"  for year  "+arr1[1][5];
+	document.getElementById("responsetext").innerHTML = out;
+	document.getElementById("responseheader").style.display = 'block';
+	document.getElementById("responsetext").style.display = 'block';
+
+
+
+}
+
+</script>
+</head>
+<body>
+<h1 align="center">Worldwide census data</h1>
+
+
+<div id="search_criteria_header"><strong>Select your search criteria</strong></div>
+
+<div id="search_criteria">
+
+    <input type="radio" id="task1" name="radios" value="false" onchange="javascript:showform();">
+	<label for="task1">Population data male/femle/both for given country and year</label>
+
+	<input type="radio" id="task2" name="radios"value="false" onchange="javascript:showform();">
+    <label for="task2">Percentage change in population for a country between given years</label>
+
+    <input type="radio" id="task3" name="radios"value="false" onchange="javascript:showform();">
+    <label for="task3">Male and Female population data for a country for given year</label>
+	
+</div>	
+	   
+<div id="task1container">
+<form name="task1form" action="">
+<fieldset>
+	<h2>Use the below form to get population data for particualar country and year</h2>
+	<p>Required fields are followed by <strong><abbr title="required">*</abbr></strong>.</p>
+
+	<div id="formfield">
+		<span>countrycode :*</span>
+		<input type="text" name="countrycode" placeholder="EX: IN for India" /><br/>
+	</div>
+	<div id="formfield">
+		<span>year :*</span>
+		<select id="year">
+			<option value="2010">2010</option>
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+		</select>
+		<!--<input type="text" name="year" placeholder="valid years : 2010 to 2014" /><br/>-->
+	</div>
+	<div id="formfield">
+		<span>sex*</span>
+		<select id="sex">
+			<option value="1">Male</option>
+			<option value="2">Female</option>
+			<option value="0">Both</option>
+		</select>
+		<!--<input type="text" name="sex" placeholder="Enter 1 for male ,2 for female ,0 for both" /><br/>-->
+	</div>
+
+
+<INPUT TYPE="button" NAME="button" Value="SUBMIT" onClick="gettask1()">
+</fieldset>
+</form>
+</div>
+
+<div id="task2container">
+<form name="task2form" action="">
+<fieldset>
+	<h2>Use the below form to get percentage difference in the population for particular country in between given years</h2>
+	<p>Required fields are followed by <strong><abbr title="required">*</abbr></strong>.</p>
+
+	<div id="formfield">
+		<span>countrycode : *</span>
+		<input type="text" name="countrycode" placeholder="EX: IN for India" /><br/>
+	</div>
+	<div id="formfield">
+		<span>year1 : *</span>
+		<!--<input type="text" name="year1" placeholder="valid years : 2010 to 2014" /><br/>-->
+		<select id="year1">
+			<option value="2010">2010</option>
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+		</select>
+	</div>
+	<div id="formfield">
+		<span>year2 : *</span>
+		<!--<input type="text" name="year2" placeholder="valid years : 2010 to 2014" /><br/>-->
+		<select id="year2">
+			<option value="2010">2010</option>
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+		</select>
+	</div>
+	
+	<INPUT TYPE="button" NAME="button" Value="SUBMIT" onClick="gettask2()">
+</fieldset>
+</form>
+</div>
+
+<div id="task3container">
+<form name="task3form" action="">
+<fieldset>
+	<h2>Use the below form to get both men and women population count for particular country and year</h2>
+	<p>Required fields are followed by <strong><abbr title="required">*</abbr></strong>.</p>
+
+	<div id="formfield">
+		<span>countrycode : *</span>
+		<input type="text" name="countrycode" placeholder="EX: IN for India" /><br/>
+	</div>
+	<div id="formfield">
+		<span>year : *</span>
+		<select id="year">
+			<option value="2010">2010</option>
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+		</select>
+		<!--<input type="text" name="year" placeholder="valid years : 2010 to 2014" /><br/>-->
+	</div>
+	<INPUT TYPE="button" NAME="button" Value="SUBMIT" onClick="gettask3()">
+</fieldset>
+</form>
+</div>
+
+<div id="responsecontainer">
+	<h2 id="responseheader"></h2>
+	<p id="responsetext"></p>
+</div>
+
+</body>
+</html>
